@@ -15,12 +15,11 @@ import tqdm
 import warnings
 import random
 import multiprocessing as mp
-
+data = []
 warnings.filterwarnings("ignore")
 datafrom = openpyxl.load_workbook('NSCLCPD-1.xlsx')
 train = datafrom.get_sheet_by_name("Training")
 idarray = []
-data = np.zeros((700,2))
 for num in range (8,700):
     if (num<10):
         id_on = str("MSK_00"+str(num))
@@ -34,41 +33,43 @@ for num in range (8,700):
   #  data.append(ids(ids))
 #for t in range(2,2252):
 #   pat_id =str(train.cell(row = t, column=1).value)
-
-
 #    print(pat_id
+for i in range(0,700):
+    data.append(("a","b"))
+for i in range(0,700):
+    data[i] = ("","")
 for indx in tqdm.tqdm(range(2,2252)):
     pat_id = train.cell(row = indx, column = 1).value
     for num in range(len(idarray)):
         idname = idarray[num]
         if (pat_id == idname):
-#        text = train.cell(row = indx, column = 12).value
-            aray = data[num]
-            date = train.cell(row = indx, column = 9).value
+            text = train.cell(row = indx, column = 12).value
             raw_label = train.cell(row = indx, column =3).value
             if (raw_label in ("POD","SD","POD/brain")):
                 label = "0"
             elif(raw_label in ("PR","CR")):
                 label = "1"
-            aray = np.append((label,date),aray)
+            data[num] += ((text,label))
 print(data)
-#random.shuffle(data)
+
+random.shuffle(data)
 #avgmlp = []
-#trainData = [data[j] for j in range(int(len(data)*.9))]
-#testData = [data[u] for u in range(int(len(data)*.9),(int(len(data))))]
-#trainText, trainY = [d[0] for d in trainData], [d[1] for d in trainData]
-#testText, testY = [d[0] for d in testData], [d[1] for d in testData]
-#min_df = 1
-#max_features = 15000
-#countVec = CountVectorizer(ngram_range=(1,3), min_df = min_df, max_features = max_features)
-#trainX = countVec.fit_transform(trainText)
-#testX = countVec.transform(testText)
-#mlp = MLPClassifier(hidden_layer_sizes=(100,), alpha = .0001, batch_size='auto', learning_rate='constant', learning_rate_init=0.001, power_t=0.5,max_iter=2000,shuffle=True, random_state=None, tol=0.0001, momentum=0.9)
-#mlp.fit(trainX, trainY)
-#score = mlp.score(testX,testY)
+trainData = [data[j] for j in range(int(len(data)*.9))]
+testData = [data[u] for u in range(int(len(data)*.9),(int(len(data))))]
+trainText, trainY = [d[0] for d in trainData], [d[1] for d in trainData]
+print(trainText)
+testText, testY = [d[0] for d in testData], [d[1] for d in testData]
+min_df = 1
+max_features = 15000
+countVec = CountVectorizer(ngram_range=(1,3), min_df = min_df, max_features = max_features)
+trainX = countVec.fit_transform(trainText)
+testX = countVec.transform(testText)
+mlp = MLPClassifier(hidden_layer_sizes=(100,), alpha = .0001, batch_size='auto', learning_rate='constant', learning_rate_init=0.001, power_t=0.5,max_iter=2000,shuffle=True, random_state=None, tol=0.0001, momentum=0.9)
+mlp.fit(trainX, trainY)
+score = mlp.score(testX,testY)
 #predictions = mlp.predict(testX)
 #confused_matrix = confusion_matrix(testY,predictions)
-#print(score)                                         
+print(score)                                         
 #print(confused_matrix)                                                                                                                            
     # falpos = 0
     # falneg = 0
