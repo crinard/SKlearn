@@ -21,43 +21,68 @@ datafrom = openpyxl.load_workbook('NSCLCPD-1.xlsx')
 train = datafrom.get_sheet_by_name("Training")
 idarray = []
 for num in range (8,700):
-    if (num<10):
-        id_on = str("MSK_00"+str(num))
-    elif(num<99):
-        id_on = str("MSK_0"+str(num))
-    elif(num>99):
-        id_on = str("MSK_"+str(num))
-    idarray.append(id_on)
+	if (num<10):
+		id_on = str("MSK_00"+str(num))
+	elif(num<99):
+		id_on = str("MSK_0"+str(num))
+	elif(num>99):
+		id_on = str("MSK_"+str(num))
+	idarray.append(id_on)
 #for ids in range(len(ids)):
  #   ids(ids) = []
   #  data.append(ids(ids))
 #for t in range(2,2252):
 #   pat_id =str(train.cell(row = t, column=1).value)
 #    print(pat_id
-for i in range(0,700):
-    data.append(("a","b"))
-for i in range(0,700):
-    data[i] = ("","")
+data = [("","") for i in range(len(idarray))]
 for indx in tqdm.tqdm(range(2,2252)):
-    pat_id = train.cell(row = indx, column = 1).value
-    for num in range(len(idarray)):
-        idname = idarray[num]
-        if (pat_id == idname):
-            text = train.cell(row = indx, column = 12).value
-            raw_label = train.cell(row = indx, column =3).value
-            if (raw_label in ("POD","SD","POD/brain")):
-                label = "0"
-            elif(raw_label in ("PR","CR")):
-                label = "1"
-            data[num] += ((text,label))
-print(data)
+	pat_id = train.cell(row = indx, column = 1).value
+	for num in range(len(idarray)):
+		idname = idarray[num]
+		if (pat_id == idname):
+			text = train.cell(row = indx, column = 12).value
+			raw_label = train.cell(row = indx, column =3).value
+			if(raw_label in ("POD","SD","POD/brain")):
+				label = "0"
+			elif(raw_label in ("PR","CR")):
+				label = "1"
+			if(data[num][1] in ("0","1")):
+				before = data[num][0]
+				prior = data[num][1]
+				toadd = before+text
+				data[num] = (toadd,prior)
+			else:
+				data[num] = (text,label)
+#random.shuffle(data)
+trainData = []
+trainText = []
+trainY = []
+testText = []
+testY = []
+testData = []
+print(data[0])
+print(data[0][0])
+#for i in range(int(len(data)*.9)):
+#	if(len(data[i][0]) == 0):
+#		print("fault"+str(i))
+#	else:
+#		trainData.append(data[i])
+#		print(len(data[i][0]))
+#		trainText.append(data[i][0])
+#		trainY.append(data[i][1])
+#for i in range((int(len(data)*.9)),(len(data))):
+#	if(len(data[i]) == 0):
+#		print("fault"+str(i))
+#	else:
+#		testData.append(data[i])	
+#print(trainData)
+#print(trainY)
 
-random.shuffle(data)
 #avgmlp = []
 trainData = [data[j] for j in range(int(len(data)*.9))]
 testData = [data[u] for u in range(int(len(data)*.9),(int(len(data))))]
 trainText, trainY = [d[0] for d in trainData], [d[1] for d in trainData]
-print(trainText)
+#print(trainText)
 testText, testY = [d[0] for d in testData], [d[1] for d in testData]
 min_df = 1
 max_features = 15000
@@ -69,6 +94,7 @@ mlp.fit(trainX, trainY)
 score = mlp.score(testX,testY)
 #predictions = mlp.predict(testX)
 #confused_matrix = confusion_matrix(testY,predictions)
+
 print(score)                                         
 #print(confused_matrix)                                                                                                                            
     # falpos = 0
